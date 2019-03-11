@@ -1,0 +1,235 @@
+package Exodia-Necross.ultraseries.ultraplatinumseries.events;
+
+
+
+import org.bukkit.GameMode;
+
+import org.bukkit.Location;
+
+import org.bukkit.Material;
+
+import org.bukkit.World;
+
+import org.bukkit.block.Block;
+
+import org.bukkit.entity.Entity;
+
+import org.bukkit.entity.FallingBlock;
+
+import org.bukkit.entity.Player;
+
+import org.bukkit.entity.TNTPrimed;
+
+import org.bukkit.event.EventPriority;
+
+import org.bukkit.event.Listener;
+
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+
+import org.bukkit.util.Vector;
+
+
+
+public class TNTevent implements Listener
+
+{
+
+    public TNTevent() {}
+
+
+
+    @org.bukkit.event.EventHandler(priority=EventPriority.MONITOR)
+
+    void onExplosion(ExplosionPrimeEvent e)
+
+    {
+
+        Entity en = e.getEntity();
+
+
+
+        int minX = Math.min(en.getLocation().subtract(6.0D, 6.0D, 6.0D).getBlockX(), en.getLocation().subtract(-6.0D, -6.0D, -6.0D).getBlockX());
+
+        int minY = Math.min(en.getLocation().subtract(6.0D, 6.0D, 6.0D).getBlockY(), en.getLocation().subtract(-6.0D, -6.0D, -6.0D).getBlockY());
+
+        int minZ = Math.min(en.getLocation().subtract(6.0D, 6.0D, 6.0D).getBlockZ(), en.getLocation().subtract(-6.0D, -6.0D, -6.0D).getBlockZ());
+
+
+
+        int maxX = Math.max(en.getLocation().subtract(6.0D, 6.0D, 6.0D).getBlockX(), en.getLocation().subtract(-6.0D, -6.0D, -6.0D).getBlockX());
+
+        int maxY = Math.max(en.getLocation().subtract(6.0D, 6.0D, 6.0D).getBlockY(), en.getLocation().subtract(-6.0D, -6.0D, -6.0D).getBlockY());
+
+        int maxZ = Math.max(en.getLocation().subtract(6.0D, 6.0D, 6.0D).getBlockZ(), en.getLocation().subtract(-6.0D, -6.0D, -6.0D).getBlockZ());
+
+
+
+
+
+        e.setCancelled(true);
+
+        e.getEntity().getWorld().playSound(e.getEntity().getLocation(), org.bukkit.Sound.EXPLODE, 1.0F, 1.0F);
+
+
+
+        for (Entity all : en.getWorld().getEntities()) {
+
+            Location midloc = en.getLocation();
+
+            Location ploc = all.getLocation();
+
+            int xr = midloc.getBlockX() - ploc.getBlockX();
+
+            int yr = midloc.getBlockY() - ploc.getBlockY();
+
+            int zr = midloc.getBlockZ() - ploc.getBlockZ();
+
+
+
+            if (all.getLocation().distance(en.getLocation()) < 5.0D) {
+
+                Vector v = new Vector(-xr, yr, -zr).normalize();
+
+                v.multiply(0.8D);
+
+                v.setY(0.5D);
+
+                all.setVelocity(v);
+
+                if ((all instanceof Player)) {
+
+                    Player allp = ((Player)all).getPlayer();
+
+                    if ((allp.getGameMode().equals(GameMode.SURVIVAL)) || (allp.getGameMode().equals(GameMode.ADVENTURE))) {
+
+                        if (allp.getHealth() == 20.0D) {
+
+                            allp.setHealth(allp.getHealth() - 7.0D);
+
+                        } else if (allp.getHealth() > 13.0D) {
+
+                            allp.setHealth(allp.getHealth() - 7.0D);
+
+                        } else if (allp.getHealth() > 6.0D) {
+
+                            allp.setHealth(0.0D);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+
+
+
+
+        for (int x = minX; x <= maxX; x++) {
+
+            for (int y = minY; y <= maxY; y++) {
+
+                for (int z = minZ; z <= maxZ; z++) {
+
+                    Block b = en.getWorld().getBlockAt(x, y, z);
+
+                    Location bloc = b.getLocation();
+
+                    Location midloc = en.getLocation();
+
+
+
+                    int xr = midloc.getBlockX() - bloc.getBlockX();
+
+                    int yr = midloc.getBlockY() - bloc.getBlockY();
+
+                    int zr = midloc.getBlockZ() - bloc.getBlockZ();
+
+
+
+                    if (b.getType().equals(Material.TNT)) {
+
+                        b.setType(Material.AIR);
+
+                        TNTPrimed tnt = (TNTPrimed)b.getWorld().spawn(b.getLocation(), TNTPrimed.class);
+
+                        tnt.setFuseTicks(40);
+
+
+
+                        Vector v = new Vector(-xr, yr, -zr).normalize();
+
+                        v.multiply(0.5D);
+
+                        v.setY(0.3D);
+
+                        tnt.setVelocity(v);
+
+                    }
+
+                    else if (bloc.distance(midloc) < 4.0D)
+
+                    {
+
+                        int[] rr = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+                        int ausgabe = rr[new java.util.Random().nextInt(rr.length)];
+
+                        if (((ausgabe != 10) || (ausgabe != 9) || (ausgabe != 8) || (ausgabe != 7)) &&
+
+                                (b.getType().isSolid())) {
+
+                            FallingBlock block = b.getWorld().spawnFallingBlock(b.getLocation(), b.getType(), b.getData());
+
+                            Vector v = new Vector(-xr, yr, -zr).normalize();
+
+                            v.multiply(1);
+
+                            v.setY(1);
+
+                            block.setVelocity(v);
+
+                            block.setDropItem(false);
+
+                        }
+
+
+
+
+
+                        if (ausgabe == 1) {
+
+                            if (!b.getLocation().subtract(0.0D, 1.0D, 0.0D).getBlock().getType().isSolid())
+
+                            {
+
+
+
+                                b.setType(Material.AIR);
+
+                            }
+
+                        } else if ((ausgabe == 2) || (ausgabe == 3)) {
+
+                            if ((b.getLocation().subtract(0.0D, 2.0D, 0.0D).getBlock().getType().isSolid()) && (b.getLocation().subtract(0.0D, 1.0D, 0.0D).getBlock().getType().isSolid())) {
+
+                                b.setType(Material.FIRE);
+
+                            }
+
+                            else {
+
+                                b.setType(Material.AIR);
+
+                            }
+
+                        } else {
+
+                            b.setType(Material.AIR);
+
+                        }
